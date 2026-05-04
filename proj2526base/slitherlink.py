@@ -126,6 +126,17 @@ class Board:
         return Board(matrix)
 
     # TODO: outros metodos da classe
+    def __str__(self):
+        """Devolve uma representação em string do tabuleiro, para facilitar a
+        visualização e depuração."""
+        #TODO
+        board_str = ""
+        for i in range(self.n_lines):
+            board_str += "|"
+            for j in range(self.n_columns):
+                board_str += str(self.matrix[(i, j)]) + "   " + "|"
+            board_str += "\n"
+        return board_str
 
 class Slitherlink(Problem):
     def __init__(self, board: Board, gui=None):
@@ -165,6 +176,8 @@ class Slitherlink(Problem):
 
 
 if __name__ == "__main__":
+    board = Board.parse_instance()
+    print(board)
     # TODO:
     # Ler o ficheiro do standard input,
     # Usar uma técnica de procura para resolver a instância,
