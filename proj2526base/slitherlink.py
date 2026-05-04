@@ -42,6 +42,17 @@ class SlitherlinkState:
 class Board:
     """Representação interna de um tabuleiro de Slitherlink."""
 
+    def __init__(self, matrix:list):
+        n_lines = len(matrix)
+        n_columns = len(matrix[0]) if n_lines > 0 else 0
+        matrix_dict = {}
+        for i, row in enumerate(matrix):
+            for j, cell in enumerate(row):
+                #if cell not in [0, 1, 2, 3, None]:
+                #    raise ValueError("Invalid cell value: {}".format(cell))
+                matrix_dict[(i, j)] = cell
+        self.matrix = matrix_dict
+
     def adjacent_cell(self, cell:tuple) -> list:
         """Devolve uma lista das células que fazem
         fronteira com a célula enviada no argumento"""
@@ -71,7 +82,19 @@ class Board:
             > line = stdin.readline().split()
         """
         # TODO
-        pass
+        matrix = []
+        while True:
+            line = stdin.readline().split()
+            if not line:
+                break
+            for i in range(len(line)):
+                if line[i] == '.':
+                    line[i] = -1
+                else:
+                    line[i] = int(line[i])
+            matrix.append(line)
+            print(line)
+        return Board(matrix)
 
     # TODO: outros metodos da classe
 
