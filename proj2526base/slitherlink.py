@@ -53,14 +53,14 @@ class Board:
                 #    raise ValueError("Invalid cell value: {}".format(cell))
                 matrix_dict[(i, j)] = cell
         self.matrix = matrix_dict'''
-        rows = len(matrixValues)
-        cols = len(matrixValues[0])
+        self.n_lines = len(matrixValues)
+        self.n_columns = len(matrixValues[0]) if self.n_lines > 0 else 0
         matrix_dict = {}
         matrix_edges = {}
-        for i in range(1,rows+1):
-            for j in range(1, cols+1):
-                matrix_dict[(i, j)] = matrixValues[i-1][j-1]
-                matrix_edges[(i, j)] = ("0000")
+        for i, row in enumerate(matrixValues):
+            for j, cell in enumerate(row):
+                matrix_dict[(i+1, j+1)] = cell
+                matrix_edges[(i+1, j+1)] = ("0000")
                 
         self.matrixValues = matrix_dict
         self.matrixEdges = matrix_edges
@@ -130,13 +130,20 @@ class Board:
         """Devolve uma representação em string do tabuleiro, para facilitar a
         visualização e depuração."""
         #TODO
-        board_str = ""
-        for i in range(self.n_lines):
-            board_str += "|"
-            for j in range(self.n_columns):
-                board_str += str(self.matrix[(i, j)]) + "   " + "|"
-            board_str += "\n"
-        return board_str
+        def formatCell(value):
+            return "." if value == -1 else str(value)
+
+        cell_width = 3
+        border = "+" + "+".join(["-" * cell_width] * self.n_columns) + "+"
+        lines = [border]
+        for i in range(1, self.n_lines + 1):
+            row = "|" + "|".join(
+                formatCell(self.matrixValues[(i, j)]).center(cell_width)
+                for j in range(1, self.n_columns + 1)
+            ) + "|"
+            lines.append(row)
+            lines.append(border)
+        return "\n".join(lines)
 
 class Slitherlink(Problem):
     def __init__(self, board: Board, gui=None):
