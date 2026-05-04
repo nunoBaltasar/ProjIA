@@ -43,8 +43,8 @@ class Board:
     """Representação interna de um tabuleiro de Slitherlink."""
 
     def __init__(self, matrix:list):
-        n_lines = len(matrix)
-        n_columns = len(matrix[0]) if n_lines > 0 else 0
+        self.n_lines = len(matrix)
+        self.n_columns = len(matrix[0]) if self.n_lines > 0 else 0
         matrix_dict = {}
         for i, row in enumerate(matrix):
             for j, cell in enumerate(row):
@@ -93,10 +93,20 @@ class Board:
                 else:
                     line[i] = int(line[i])
             matrix.append(line)
-            print(line)
         return Board(matrix)
 
     # TODO: outros metodos da classe
+    def __str__(self):
+        """Devolve uma representação em string do tabuleiro, para facilitar a
+        visualização e depuração."""
+        #TODO
+        board_str = ""
+        for i in range(self.n_lines):
+            board_str += "|"
+            for j in range(self.n_columns):
+                board_str += str(self.matrix[(i, j)]) + "   " + "|"
+            board_str += "\n"
+        return board_str
 
 class Slitherlink(Problem):
     def __init__(self, board: Board, gui=None):
@@ -136,6 +146,8 @@ class Slitherlink(Problem):
 
 
 if __name__ == "__main__":
+    board = Board.parse_instance()
+    print(board)
     # TODO:
     # Ler o ficheiro do standard input,
     # Usar uma técnica de procura para resolver a instância,
