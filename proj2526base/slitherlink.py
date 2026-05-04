@@ -42,7 +42,8 @@ class SlitherlinkState:
 class Board:
     """Representação interna de um tabuleiro de Slitherlink."""
 
-    def __init__(self, matrix:list):
+    def __init__(self, matrixValues: list):
+        '''
         n_lines = len(matrix)
         n_columns = len(matrix[0]) if n_lines > 0 else 0
         matrix_dict = {}
@@ -51,23 +52,53 @@ class Board:
                 #if cell not in [0, 1, 2, 3, None]:
                 #    raise ValueError("Invalid cell value: {}".format(cell))
                 matrix_dict[(i, j)] = cell
-        self.matrix = matrix_dict
+        self.matrix = matrix_dict'''
+        rows = len(matrixValues)
+        cols = len(matrixValues[0])
+        matrix_dict = {}
+        matrix_edges = {}
+        for i in range(1,rows+1):
+            for j in range(1, cols+1):
+                matrix_dict[(i, j)] = matrixValues[i-1][j-1]
+                matrix_edges[(i, j)] = ("0000")
+                
+        self.matrixValues = matrix_dict
+        self.matrixEdges = matrix_edges
 
     def adjacent_cell(self, cell:tuple) -> list:
         """Devolve uma lista das células que fazem
         fronteira com a célula enviada no argumento"""
-        #TODO
-        pass
+        row = cell[1]
+        col = cell[2]
+        lastCell = next(reversed(self.matrixValues))
+    
+        leftCell = (self.matrixValues.get((row, col-1)) if col-1 > 0 else None, row, col-1)
+        rightCell = (self.matrixValues.get((row, col+1)) if col+1 <= lastCell[1] else None, row, col+1)
+        upCell = (self.matrixValues.get((row-1, col)) if row-1 > 0 else None, row-1, col)
+        downCell = (self.matrixValues.get((row+1, col)) if row+1 <= lastCell[0] else None, row+1, col)
+
+        return [cell for cell in [leftCell, rightCell, upCell, downCell] if cell[0].isdigit()]
 
     def get_cell_edges(self, row:int, column:int) -> list:
         """Devolve os arestas da célula enviada no argumento"""
-        #TODO
-        pass
+        return [('h', row, column), ('h', row+1, column),
+                ('v', row, column), ('v', row, column+1)]
 
     def get_active_edges(self, row:int, column:int) -> list:
         """Devolve o número de arestas ativas"""
-        #TODO
-        pass
+        edgeNum = self.matrixEdges.get((row, column))
+        return edgeNum.count('1')
+    
+    def print_instance(self):
+        l = len(self.matrixValues)
+        m = 1
+        for _, val in self.matrixEdges.items():
+            if m == l:
+                print(val, end="\n")
+                m =1
+            print(val, end=' ')
+
+
 
 
     @staticmethod
@@ -83,17 +114,15 @@ class Board:
         """
         # TODO
         matrix = []
-        while True:
-            line = stdin.readline().split()
-            if not line:
-                break
-            for i in range(len(line)):
-                if line[i] == '.':
-                    line[i] = -1
+        for i in stdin:
+            line = i.split()
+            for j in line:
+                if j.isdigit():
+                    line[line.index(j)] = int(j)
                 else:
-                    line[i] = int(line[i])
+                    line[line.index(j)] = -1
             matrix.append(line)
-            print(line)
+
         return Board(matrix)
 
     # TODO: outros metodos da classe
