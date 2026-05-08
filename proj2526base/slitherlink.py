@@ -89,6 +89,11 @@ class Board:
         edgeNum = self.matrixEdges.get((row, column))
         return edgeNum.count('1')
     
+    def get_inactive_edges(self, row:int, column:int) -> list:
+        """Devolve o número de arestas inativas"""
+        edgeNum = self.matrixEdges.get((row, column))
+        return edgeNum.count('0')
+    
     def print_instance(self):
         l = len(self.matrixValues)
         m = 1
@@ -135,7 +140,7 @@ class Board:
 
         cell_width = 3
         border = "+" + "+".join(["-" * cell_width] * self.n_columns) + "+"
-        lines = [border]
+        lines = [border] 
         for i in range(1, self.n_lines + 1):
             row = "|" + "|".join(
                 formatCell(self.matrixValues[(i, j)]).center(cell_width)
@@ -159,7 +164,7 @@ class Slitherlink(Problem):
         pass
 
 
-    def result(self, state: SlitherlinkState, action):
+    def result(self, state: SlitherlinkState, action:list[tuple]):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
@@ -184,7 +189,8 @@ class Slitherlink(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    print(board)
+    print(board.get_cell_edges(3,1))
+    print(board.get_cell_edges(4,4))
     # TODO:
     # Ler o ficheiro do standard input,
     # Usar uma técnica de procura para resolver a instância,
