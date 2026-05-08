@@ -161,7 +161,15 @@ class Slitherlink(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         # TODO
-        pass
+        matrix  =  state.board.matrixEdges
+        set = set()
+        for key, value in matrix.items():
+            edges = state.board.get_cell_edges(key[0], key[1])
+            for i in value:
+                if i == '0':
+                    set.add(edges[value.index(i)])
+
+        return list(set)
 
 
     def result(self, state: SlitherlinkState, action:list[tuple]):
@@ -170,7 +178,6 @@ class Slitherlink(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         # TODO
-        pass
 
     def goal_test(self, state: SlitherlinkState):
         """Retorna True se e só se o estado passado como argumento é
