@@ -263,13 +263,13 @@ if __name__ == "__main__":
     print(problem.actions(problem.initial_state))
 
     print(board)
-    s0 = problem.result(problem.initial_state, ('v', 1, 1))
-    s1 = problem.result(s0, ('v', 3, 5))
-    s2 = problem.result(s1, ('h', 2, 3))
-
+    s = problem.initial_state
+    for action in problem.actions(problem.initial_state):
+        s = problem.result(s, action)
+        
     print("\n\n\n")
 
-    print(s2.board)
+    print(s.board)
 
     # TODO:
     # Ler o ficheiro do standard input,
