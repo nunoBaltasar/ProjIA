@@ -132,22 +132,65 @@ class Board:
 
     # TODO: outros metodos da classe
     def __str__(self):
-        """Devolve uma representação em string do tabuleiro, para facilitar a
-        visualização e depuração."""
-        #TODO
+        """Devolve uma representação em string do tabuleiro com arestas visíveis.
+        Usa: == para arestas horizontais marcadas, -- para não marcadas
+             || para arestas verticais marcadas, | para não marcadas
+        Retorna erro se houver incompatibilidade entre células vizinhas."""
+        
         def formatCell(value):
             return "." if value == -1 else str(value)
-
-        cell_width = 3
-        border = "+" + "+".join(["-" * cell_width] * self.n_columns) + "+"
-        lines = [border] 
+        
+        # Validar consistência das arestas
+        errors = []
+        for r in range(1, self.n_lines + 1):
+            for c in range(1, self.n_columns + 1):
+                _, right, bottom, _ = self.matrixEdges[(r, c)]
+                # Verificar bottom vs top da célula abaixo
+                if r < self.n_lines:
+                    if bottom != self.matrixEdges[(r+1, c)][0]:
+                        errors.append(f"Aresta horizontal entre ({r},{c}) e ({r+1},{c}): incompatível ({bottom} vs {self.matrixEdges[(r+1, c)][0]})")
+                # Verificar right vs left da célula à direita
+                if c < self.n_columns:
+                    if right != self.matrixEdges[(r, c+1)][3]:
+                        errors.append(f"Aresta vertical entre ({r},{c}) e ({r},{c+1}): incompatível ({right} vs {self.matrixEdges[(r, c+1)][3]})")
+        
+        if errors:
+            return "ERRO: Arestas com incompatibilidade:\n" + "\n".join(errors)
+        
+        # Construir representação visual
+        lines = []
+        
         for i in range(1, self.n_lines + 1):
-            row = "|" + "|".join(
-                formatCell(self.matrixValues[(i, j)]).center(cell_width)
-                for j in range(1, self.n_columns + 1)
-            ) + "|"
-            lines.append(row)
-            lines.append(border)
+            # Linha superior com arestas horizontais
+            h_line = "+"
+            for j in range(1, self.n_columns + 1):
+                top_edge = self.matrixEdges[(i, j)][0]
+                h_symbol = "=" if top_edge == '1' else "-"
+                h_line += h_symbol * 4 + "+"
+            lines.append(h_line)
+            
+            # Linha com células e arestas verticais
+            cell_line = ""
+            for j in range(1, self.n_columns + 1):
+                left_edge = self.matrixEdges[(i, j)][3]
+                v_symbol = "||" if left_edge == '1' else " |"
+                cell = formatCell(self.matrixValues[(i, j)]).center(3)
+                cell_line += v_symbol + cell
+            
+            # Aresta vertical direita da última coluna
+            right_edge = self.matrixEdges[(i, self.n_columns)][1]
+            v_symbol = "||" if right_edge == '1' else " |"
+            cell_line += v_symbol
+            lines.append(cell_line)
+        
+        # Linha final com arestas horizontais inferiores
+        h_line = "+"
+        for j in range(1, self.n_columns + 1):
+            bottom_edge = self.matrixEdges[(self.n_lines, j)][2]
+            h_symbol = "=" if bottom_edge == '1' else "-"
+            h_line += h_symbol * 4 + "+"
+        lines.append(h_line)
+        
         return "\n".join(lines)
 
 class Slitherlink(Problem):
@@ -161,6 +204,7 @@ class Slitherlink(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         # TODO
+        #eu acho que da pra fazer com 1/4 do tempo
         matrix  =  state.board.matrixEdges
         seen = set()
         for key, value in matrix.items():
@@ -178,6 +222,25 @@ class Slitherlink(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         # TODO
+        new_board = copy.deepcopy(state.board)
+        edge_type, line, column = action
+        if edge_type == 'h':
+        # edge is top of cell (line,column) and bottom of cell (line-1,column)
+        # top index = 0, bottom index = 2
+            if (line, column) in new_board.matrixEdges:
+                new_board.matrixEdges[(line, column)] = '1' + new_board.matrixEdges[(line, column)][1:]
+            if (line-1, column) in new_board.matrixEdges:
+                new_board.matrixEdges[(line - 1, column)] = new_board.matrixEdges[(line-1, column)][:2] + '1' + new_board.matrixEdges[(line-1, column)][3]
+        elif edge_type == 'v':
+        # edge is left of cell (line,column) and right of cell (line,column-1)
+        # right index = 1, left index = 3
+            if (line, column) in new_board.matrixEdges: 
+                new_board.matrixEdges[(line, column)] = new_board.matrixEdges[(line, column)][:3] + '1' 
+            if (line, column-1) in new_board.matrixEdges:
+                new_board.matrixEdges[(line, column-1)] = new_board.matrixEdges[(line, column-1)][0] + '1' + new_board.matrixEdges[(line, column-1)][2:] 
+
+        return SlitherlinkState(new_board)
+
 
     def goal_test(self, state: SlitherlinkState):
         """Retorna True se e só se o estado passado como argumento é
@@ -200,6 +263,13 @@ if __name__ == "__main__":
     print(problem.actions(problem.initial_state))
 
     print(board)
+    s0 = problem.result(problem.initial_state, ('v', 1, 1))
+    s1 = problem.result(s0, ('v', 3, 5))
+    s2 = problem.result(s1, ('h', 2, 3))
+
+    print("\n\n\n")
+
+    print(s2.board)
 
     # TODO:
     # Ler o ficheiro do standard input,
