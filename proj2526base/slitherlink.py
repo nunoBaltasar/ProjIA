@@ -154,7 +154,7 @@ class Slitherlink(Problem):
     def __init__(self, board: Board, gui=None):
         """O construtor especifica o estado inicial."""
         # TODO
-        pass
+        self.initial_state = SlitherlinkState(board)
 
 
     def actions(self, state: SlitherlinkState):
@@ -162,14 +162,14 @@ class Slitherlink(Problem):
         partir do estado passado como argumento."""
         # TODO
         matrix  =  state.board.matrixEdges
-        set = set()
+        seen = set()
         for key, value in matrix.items():
             edges = state.board.get_cell_edges(key[0], key[1])
-            for i in value:
-                if i == '0':
-                    set.add(edges[value.index(i)])
+            for idx, active in enumerate(value):
+                if active == '0':
+                    seen.add(edges[idx])
 
-        return list(set)
+        return list(seen)
 
 
     def result(self, state: SlitherlinkState, action:list[tuple]):
@@ -196,8 +196,11 @@ class Slitherlink(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    print(board.get_cell_edges(3,1))
-    print(board.get_cell_edges(4,4))
+    problem = Slitherlink(board)
+    print(problem.actions(problem.initial_state))
+
+    print(board)
+
     # TODO:
     # Ler o ficheiro do standard input,
     # Usar uma técnica de procura para resolver a instância,
