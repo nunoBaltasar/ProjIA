@@ -294,12 +294,33 @@ class SlitherlinkGUI:
 
     def update_from_state(self, state):
         """Sync the board display with a SlitherlinkState produced by result()."""
+        # Accept either a solver state with horizontal_walls/vertical_walls
+        # or a Board object with per-cell edge strings in matrixEdges.
+        if hasattr(state, "horizontal_walls") and hasattr(state, "vertical_walls"):
+            horizontal_walls = state.horizontal_walls
+            vertical_walls = state.vertical_walls
+        else:
+            horizontal_walls = [[False] * self.cols for _ in range(self.rows + 1)]
+            vertical_walls = [[False] * (self.cols + 1) for _ in range(self.rows)]
+
+            for r in range(1, self.rows + 1):
+                for c in range(1, self.cols + 1):
+                    top, right, bottom, left = state.matrixEdges[(r, c)]
+                    if top == '1':
+                        horizontal_walls[r - 1][c - 1] = True
+                    if bottom == '1':
+                        horizontal_walls[r][c - 1] = True
+                    if left == '1':
+                        vertical_walls[r - 1][c - 1] = True
+                    if right == '1':
+                        vertical_walls[r - 1][c] = True
+
         for r in range(self.rows + 1):
             for c in range(self.cols):
-                self.h_edges[r][c] = ACTIVE if state.horizontal_walls[r][c] else UNKNOWN
+                self.h_edges[r][c] = ACTIVE if horizontal_walls[r][c] else UNKNOWN
         for r in range(self.rows):
             for c in range(self.cols + 1):
-                self.v_edges[r][c] = ACTIVE if state.vertical_walls[r][c] else UNKNOWN
+                self.v_edges[r][c] = ACTIVE if vertical_walls[r][c] else UNKNOWN
         self._draw_board()
         self.root.update()          # flush tkinter event queue → immediate redraw
 

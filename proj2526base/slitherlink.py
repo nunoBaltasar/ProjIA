@@ -10,9 +10,12 @@
 import random, copy
 from sys import stdin
 from collections import defaultdict
+import tkinter as tk
 
 import utils
 from utils import *
+
+from slitherlink_gui import SlitherlinkGUI
 
 from search import (
     Problem,
@@ -192,12 +195,24 @@ class Board:
         lines.append(h_line)
         
         return "\n".join(lines)
+    
+    def boardToList(self):
+        """Devolve uma representação em lista do tabuleiro, onde cada célula é representada por um número de 0 a 3 ou None, e as arestas são representadas por '1' para ativas e '0' para inativas."""
+        board_list = []
+        for r in range(1, self.n_lines + 1):
+            row = []
+            for c in range(1, self.n_columns + 1):
+                cell_value = self.matrixValues[(r, c)]
+                row.append(cell_value)
+            board_list.append(row)
+        return board_list
 
 class Slitherlink(Problem):
     def __init__(self, board: Board, gui=None):
         """O construtor especifica o estado inicial."""
         # TODO
         self.initial_state = SlitherlinkState(board)
+        self.gui = gui
 
 
     def actions(self, state: SlitherlinkState):
@@ -259,24 +274,28 @@ class Slitherlink(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    problem = Slitherlink(board)
+    root = tk.Tk()
+    app = SlitherlinkGUI(root, board.boardToList())
+    
+    problem = Slitherlink(board, gui=app)
     print(problem.actions(problem.initial_state))
 
     print(board)
-    s = problem.initial_state
-    for action in problem.actions(problem.initial_state):
-        s = problem.result(s, action)
+    s0 = problem.result(problem.initial_state, ('v', 1, 1))
+    s1 = problem.result(s0, ('v', 3, 5))
+    s2 = problem.result(s1, ('h', 2, 3))
         
     print("\n\n\n")
+    app.update_from_state(s2.board)
 
-    print(s.board)
+    print(s0.board)
 
     # TODO:
     # Ler o ficheiro do standard input,
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
-    pass
+    root.mainloop()
 
 
 
